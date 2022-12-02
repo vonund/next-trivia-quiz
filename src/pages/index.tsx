@@ -34,12 +34,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
 const Home: NextPage<PropsType> = ({ categories }) => {
   console.log(categories);
 
-  return (
-    <>
-      <header></header>
-      <main></main>
-    </>
-  );
+  return <div className="block">page content</div>;
 };
 
 export default Home;
