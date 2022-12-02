@@ -1,6 +1,6 @@
 import type { GetServerSideProps, NextPage } from "next";
 
-const CATEGORIES = {
+const CATEGORIES: CategoriesResponse = {
   "Arts & Literature": ["arts", "literature", "arts_and_literature"],
   "Film & TV": ["movies", "film", "film_and_tv"],
   "Food & Drink": ["food_and_drink", "food", "drink"],
@@ -13,28 +13,46 @@ const CATEGORIES = {
   "Sport & Leisure": ["sport_and_leisure", "sports", "sport"],
 };
 
-interface CategoryInterface {
+interface CategoriesResponse {
   [key: string]: string[];
 }
+interface Category {
+  title: string;
+  alias: string;
+}
 
-type PropsType = {
-  categories: CategoryInterface | null;
-};
+type Categories = Category[];
+
+interface PageProps {
+  categories: Categories;
+}
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const props: PropsType = {
-    categories: CATEGORIES,
-  };
+  const categories: Categories = [];
+
+  for (const key of Object.keys(CATEGORIES)) {
+    const alias = key.replace(" & ", "_and_").toLocaleLowerCase();
+    categories.push({
+      title: key,
+      alias,
+    });
+  }
 
   return {
-    props,
+    props: {
+      categories,
+    },
   };
 };
 
-const Home: NextPage<PropsType> = ({ categories }) => {
-  console.log(categories);
-
-  return <div className="block">page content</div>;
+const Home: NextPage<PageProps> = ({ categories }) => {
+  return (
+    <div className="block">
+      {categories.map((category) => {
+        return <div key={category.alias}>{category.title}</div>;
+      })}
+    </div>
+  );
 };
 
 export default Home;
