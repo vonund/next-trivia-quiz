@@ -65,8 +65,8 @@ const useQuizOptions = () => {
 const Home: NextPage = () => {
   const { categories, difficulties, limits } = useQuizOptions();
 
-  const [category, setCategory] = useState<string>();
   const [difficulty, setDifficulty] = useState<string>();
+  const [category, setCategory] = useState<string>();
   const [limit, setLimit] = useState<number>();
 
   return (
@@ -77,12 +77,13 @@ const Home: NextPage = () => {
           <div className="flex flex-nowrap">
             {difficulties.map(({ title, key }) => (
               <button
-                className={classNames({
-                  "ml-2 rounded p-3 px-4 text-center first:ml-0 hover:shadow-lg":
-                    true,
-                  "bg-slate-700 hover:bg-slate-600": key !== difficulty,
-                  "cursor-default bg-rose-500": key === difficulty,
-                })}
+                className={classNames(
+                  "ml-2 rounded p-3 px-4 text-center first:ml-0 hover:shadow-lg",
+                  {
+                    "bg-slate-700 hover:bg-slate-600": key !== difficulty,
+                    "cursor-default bg-rose-500": key === difficulty,
+                  }
+                )}
                 onClick={() => {
                   setDifficulty(key);
                 }}
@@ -98,12 +99,13 @@ const Home: NextPage = () => {
           <div className="flex flex-nowrap">
             {limits.map((item) => (
               <button
-                className={classNames({
-                  "ml-2 rounded p-3 px-4 text-center first:ml-0 hover:shadow-lg":
-                    true,
-                  "bg-slate-700 hover:bg-slate-600": item !== limit,
-                  "cursor-default bg-rose-500": item === limit,
-                })}
+                className={classNames(
+                  "ml-2 rounded p-3 px-4 text-center first:ml-0 hover:shadow-lg",
+                  {
+                    "bg-slate-700 hover:bg-slate-600": item !== limit,
+                    "cursor-default bg-rose-500": item === limit,
+                  }
+                )}
                 onClick={() => {
                   setLimit(item);
                 }}
