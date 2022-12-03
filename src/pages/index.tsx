@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import classNames from "classnames";
 
 interface Option {
   title: string;
@@ -68,10 +69,6 @@ const Home: NextPage = () => {
   const [difficulty, setDifficulty] = useState<string>();
   const [limit, setLimit] = useState<number>();
 
-  const buttonSm = `ml-2 first:ml-0 rounded px-4 p-3 text-center hover:shadow-lg`;
-  const button = "bg-slate-700 hover:bg-slate-600";
-  const buttonActive = "bg-rose-500 cursor-default";
-
   return (
     <div className="block">
       <div className="flex">
@@ -80,9 +77,12 @@ const Home: NextPage = () => {
           <div className="flex flex-nowrap">
             {difficulties.map(({ title, key }) => (
               <button
-                className={`${buttonSm} ${
-                  key !== difficulty ? button : buttonActive
-                }`}
+                className={classNames({
+                  "ml-2 rounded p-3 px-4 text-center first:ml-0 hover:shadow-lg":
+                    true,
+                  "bg-slate-700 hover:bg-slate-600": key !== difficulty,
+                  "cursor-default bg-rose-500": key === difficulty,
+                })}
                 onClick={() => {
                   setDifficulty(key);
                 }}
@@ -98,9 +98,12 @@ const Home: NextPage = () => {
           <div className="flex flex-nowrap">
             {limits.map((item) => (
               <button
-                className={`${buttonSm} ${
-                  item !== limit ? button : buttonActive
-                }`}
+                className={classNames({
+                  "ml-2 rounded p-3 px-4 text-center first:ml-0 hover:shadow-lg":
+                    true,
+                  "bg-slate-700 hover:bg-slate-600": item !== limit,
+                  "cursor-default bg-rose-500": item === limit,
+                })}
                 onClick={() => {
                   setLimit(item);
                 }}
