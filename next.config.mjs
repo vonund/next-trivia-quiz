@@ -13,5 +13,8 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  env: {
+    SERVICE_URL: 'https://the-trivia-api.com',
+  }
 };
 export default config;

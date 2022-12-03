@@ -32,23 +32,22 @@ const Home: NextPage = () => {
   useEffect(() => {
     if (!options) return;
 
-    const normalizeOptions = (options: ResponseOptions): Options => {
-      return Object.keys(options)
+    const normalizeOptions = (data: ResponseOptions): Options => {
+      return Object.keys(data)
         .sort()
-        .reduce((acc: Options, option) => {
+        .reduce((acc: Options, item) => {
           return [
             ...acc,
             {
-              title: option,
-              key: option.replace(" & ", "_and_").toLocaleLowerCase(),
+              title: item,
+              key: item.replace(" & ", "_and_").toLocaleLowerCase(),
             },
           ];
         }, []);
     };
 
-    const { byCategory, byDifficulty } = options;
-    setCategories(normalizeOptions(byCategory));
-    setDifficulties(normalizeOptions(byDifficulty));
+    setCategories(normalizeOptions(options.byCategory));
+    setDifficulties(normalizeOptions(options.byDifficulty));
   }, [options]);
 
   if (isLoading) return <div>Loading...</div>;

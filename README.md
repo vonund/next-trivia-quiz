@@ -29,8 +29,6 @@ Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/ver
 
 ## Todo
 
-- replace custom hook with common component level query
-- !split request string into variables
 - check how to improve separate active/default button states 
 - check how to improve button styles, use CVA maybe
 - improve design system
