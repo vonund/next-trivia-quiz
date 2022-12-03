@@ -1,5 +1,5 @@
-import type { GetServerSideProps, NextPage } from "next";
-import { useState } from "react";
+import type { NextPage } from "next";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 const CATEGORIES: CategoriesResponse = {
@@ -25,35 +25,32 @@ interface Category {
 
 type Categories = Category[];
 
-interface PageProps {
-  difficulties: string[];
-  categories: Categories;
-  limits: number[];
-}
+const useQuizOptions = () => {
+  const [categories, setCategories] = useState<Categories>([]);
 
-export const getServerSideProps: GetServerSideProps = async () => {
-  const categories: Categories = [];
+  useEffect(() => {
+    const categoriesAcc: Categories = [];
+    for (const key of Object.keys(CATEGORIES)) {
+      const alias = key.replace(" & ", "_and_").toLocaleLowerCase();
+      categoriesAcc.push({
+        title: key,
+        alias,
+      });
+    }
 
-  for (const key of Object.keys(CATEGORIES)) {
-    const alias = key.replace(" & ", "_and_").toLocaleLowerCase();
-    categories.push({
-      title: key,
-      alias,
-    });
-  }
+    setCategories(categoriesAcc);
+  }, []);
 
-  const props: PageProps = {
+  return {
     difficulties: ["easy", "medium", "hard"],
     limits: [3, 4, 5],
     categories,
   };
-
-  return {
-    props,
-  };
 };
 
-const Home: NextPage<PageProps> = ({ categories, difficulties, limits }) => {
+const Home: NextPage = () => {
+  const { categories, difficulties, limits } = useQuizOptions();
+
   const [queries, setQueries] = useState({
     category: "",
     difficulty: difficulties[0],
