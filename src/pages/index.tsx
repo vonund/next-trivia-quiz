@@ -1,49 +1,62 @@
-import type { NextPage } from "next";
 import { useEffect, useState } from "react";
+import type { NextPage } from "next";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 
-const CATEGORIES: CategoriesResponse = {
-  "Arts & Literature": ["arts", "literature", "arts_and_literature"],
-  "Film & TV": ["movies", "film", "film_and_tv"],
-  "Food & Drink": ["food_and_drink", "food", "drink"],
-  "General Knowledge": ["general_knowledge"],
-  Geography: ["geography"],
-  History: ["history"],
-  Music: ["music"],
-  Science: ["science"],
-  "Society & Culture": ["society_and_culture", "society", "culture"],
-  "Sport & Leisure": ["sport_and_leisure", "sports", "sport"],
-};
-
-interface CategoriesResponse {
-  [key: string]: string[];
-}
-interface Category {
+interface Option {
   title: string;
-  alias: string;
+  key: string;
 }
 
-type Categories = Category[];
+type Options = Option[];
+
+interface Metadata {
+  byCategory: {
+    [key: string]: number;
+  };
+  byDifficulty: {
+    [key: string]: number;
+  };
+}
 
 const useQuizOptions = () => {
-  const [categories, setCategories] = useState<Categories>([]);
+  const [categories, setCategories] = useState<Options>([]);
+  const [difficulties, setDifficulties] = useState<Options>([]);
+
+  const { data: metadata } = useQuery({
+    queryKey: ["metadata"],
+    queryFn: async (): Promise<Metadata> => {
+      const response = await fetch("https://the-trivia-api.com/api/metadata");
+      return response.json();
+    },
+  });
 
   useEffect(() => {
-    const categoriesAcc: Categories = [];
-    for (const key of Object.keys(CATEGORIES)) {
-      const alias = key.replace(" & ", "_and_").toLocaleLowerCase();
-      categoriesAcc.push({
-        title: key,
-        alias,
+    if (!metadata) return;
+
+    const categoriesMap: Options = [];
+    const difficultiesMap: Options = [];
+    for (const category of Object.keys(metadata.byCategory)) {
+      categoriesMap.push({
+        title: category,
+        key: category.replace(" & ", "_and_").toLocaleLowerCase(),
+      });
+    }
+    for (const difficulty of Object.keys(metadata.byDifficulty)) {
+      if (difficulty.toLocaleLowerCase() === "null") continue;
+      difficultiesMap.push({
+        title: difficulty,
+        key: difficulty.replace(" & ", "_and_").toLocaleLowerCase(),
       });
     }
 
-    setCategories(categoriesAcc);
-  }, []);
+    setCategories(categoriesMap);
+    setDifficulties(difficultiesMap);
+  }, [metadata]);
 
   return {
-    difficulties: ["easy", "medium", "hard"],
     limits: [3, 4, 5],
+    difficulties,
     categories,
   };
 };
@@ -51,11 +64,9 @@ const useQuizOptions = () => {
 const Home: NextPage = () => {
   const { categories, difficulties, limits } = useQuizOptions();
 
-  const [queries, setQueries] = useState({
-    category: "",
-    difficulty: difficulties[0],
-    limit: limits[0],
-  });
+  const [category, setCategory] = useState<string>();
+  const [difficulty, setDifficulty] = useState<string>();
+  const [limit, setLimit] = useState<number>();
 
   const buttonSm = `ml-2 first:ml-0 rounded px-4 p-3 text-center hover:shadow-lg`;
   const button = "bg-slate-700 hover:bg-slate-600";
@@ -67,20 +78,17 @@ const Home: NextPage = () => {
         <div className="flex items-center">
           <h2 className="mr-3 font-semibold text-slate-300">Difficulty</h2>
           <div className="flex flex-nowrap">
-            {difficulties.map((difficulty) => (
+            {difficulties.map(({ title, key }) => (
               <button
                 className={`${buttonSm} ${
-                  difficulty !== queries.difficulty ? button : buttonActive
+                  key !== difficulty ? button : buttonActive
                 }`}
                 onClick={() => {
-                  setQueries({
-                    ...queries,
-                    difficulty,
-                  });
+                  setDifficulty(key);
                 }}
-                key={difficulty}
+                key={key}
               >
-                {difficulty}
+                {title}
               </button>
             ))}
           </div>
@@ -88,48 +96,44 @@ const Home: NextPage = () => {
         <div className="ml-12 flex items-center">
           <h2 className="mr-3 font-semibold text-slate-300">Questions</h2>
           <div className="flex flex-nowrap">
-            {limits.map((limit) => (
+            {limits.map((item) => (
               <button
                 className={`${buttonSm} ${
-                  limit !== queries.limit ? button : buttonActive
+                  item !== limit ? button : buttonActive
                 }`}
                 onClick={() => {
-                  setQueries({
-                    ...queries,
-                    limit,
-                  });
+                  setLimit(item);
                 }}
-                key={limit}
+                key={item}
               >
-                {limit}
+                {item}
               </button>
             ))}
           </div>
         </div>
       </div>
-      {categories.length && (
-        <>
-          <h2 className="mb-6 mt-12 text-2xl font-semibold text-slate-300">
-            Choose a category
-          </h2>
-          <div className="grid grid-cols-5 gap-x-6 gap-y-4">
-            {categories.map((category) => {
-              return (
-                <button
-                  className="cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap rounded bg-slate-700 px-6 py-6 text-center font-semibold hover:bg-slate-600 hover:shadow-lg"
-                  key={category.alias}
-                  type="button"
-                >
-                  {category.title}
-                </button>
-              );
-            })}
-          </div>
-        </>
-      )}
+      <h2 className="mb-6 mt-12 text-2xl font-semibold text-slate-300">
+        Choose a category
+      </h2>
+      <div className="grid grid-cols-5 gap-x-6 gap-y-4">
+        {categories.map(({ title, key }) => {
+          return (
+            <button
+              className="cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap rounded bg-slate-700 px-6 py-6 text-center font-semibold hover:bg-slate-600 hover:shadow-lg"
+              key={key}
+              type="button"
+              onClick={() => {
+                setCategory(key);
+              }}
+            >
+              {title}
+            </button>
+          );
+        })}
+      </div>
       <div className="mt-12 text-center">
         <Link
-          href="/quiz"
+          href={`/quiz?category=${category}&difficulty=${difficulty}&limit=${limit}`}
           className="inline-block rounded bg-pink-600 px-14 py-4 align-top text-2xl shadow-xl hover:bg-rose-500"
         >
           Start a quiz!
