@@ -3,6 +3,10 @@ import type { NextPage } from "next";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import classNames from "classnames";
+import {
+  fetchOptions,
+  type ResponseOptions,
+} from "../providers/fetch-options.provider";
 
 interface Option {
   title: string;
@@ -11,63 +15,43 @@ interface Option {
 
 type Options = Option[];
 
-interface Metadata {
-  byCategory: {
-    [key: string]: number;
-  };
-  byDifficulty: {
-    [key: string]: number;
-  };
-}
-
-const useQuizOptions = () => {
+const Home: NextPage = () => {
   const [categories, setCategories] = useState<Options>([]);
   const [difficulties, setDifficulties] = useState<Options>([]);
-
-  const { data: metadata } = useQuery({
-    queryKey: ["metadata"],
-    queryFn: async (): Promise<Metadata> => {
-      const response = await fetch("https://the-trivia-api.com/api/metadata");
-      return response.json();
-    },
-  });
-
-  useEffect(() => {
-    if (!metadata) return;
-
-    const categoriesMap: Options = [];
-    const difficultiesMap: Options = [];
-    for (const category of Object.keys(metadata.byCategory)) {
-      categoriesMap.push({
-        title: category,
-        key: category.replace(" & ", "_and_").toLocaleLowerCase(),
-      });
-    }
-    for (const difficulty of Object.keys(metadata.byDifficulty)) {
-      if (difficulty.toLocaleLowerCase() === "null") continue;
-      difficultiesMap.push({
-        title: difficulty,
-        key: difficulty.replace(" & ", "_and_").toLocaleLowerCase(),
-      });
-    }
-
-    setCategories(categoriesMap);
-    setDifficulties(difficultiesMap);
-  }, [metadata]);
-
-  return {
-    limits: [3, 4, 5],
-    difficulties,
-    categories,
-  };
-};
-
-const Home: NextPage = () => {
-  const { categories, difficulties, limits } = useQuizOptions();
+  const limits = [3, 4, 5];
 
   const [difficulty, setDifficulty] = useState<string>();
   const [category, setCategory] = useState<string>();
   const [limit, setLimit] = useState<number>();
+
+  const { data: options, isLoading } = useQuery({
+    queryKey: ["options"],
+    queryFn: fetchOptions,
+  });
+
+  useEffect(() => {
+    if (!options) return;
+
+    const normalizeOptions = (data: ResponseOptions): Options => {
+      return Object.keys(data)
+        .sort()
+        .reduce((acc: Options, key) => {
+          return [
+            ...acc,
+            {
+              title: key,
+              key: key.replace(" & ", "_and_").toLocaleLowerCase(),
+            },
+          ];
+        }, []);
+    };
+
+    const { byCategory, byDifficulty } = options;
+    setCategories(normalizeOptions(byCategory));
+    setDifficulties(normalizeOptions(byDifficulty));
+  }, [options]);
+
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className="block">
