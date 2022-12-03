@@ -1,4 +1,5 @@
 import type { GetServerSideProps, NextPage } from "next";
+import { useState } from "react";
 import Link from "next/link";
 
 const CATEGORIES: CategoriesResponse = {
@@ -25,7 +26,9 @@ interface Category {
 type Categories = Category[];
 
 interface PageProps {
+  difficulties: string[];
   categories: Categories;
+  limits: number[];
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
@@ -39,33 +42,71 @@ export const getServerSideProps: GetServerSideProps = async () => {
     });
   }
 
+  const props: PageProps = {
+    difficulties: ["easy", "medium", "hard"],
+    limits: [3, 4, 5],
+    categories,
+  };
+
   return {
-    props: {
-      categories,
-    },
+    props,
   };
 };
 
-const Home: NextPage<PageProps> = ({ categories }) => {
-  const buttonSm = `ml-2 first:ml-0 rounded bg-slate-700 px-4 p-3 text-center hover:bg-slate-600 hover:shadow-lg`;
+const Home: NextPage<PageProps> = ({ categories, difficulties, limits }) => {
+  const [queries, setQueries] = useState({
+    category: "",
+    difficulty: difficulties[0],
+    limit: limits[0],
+  });
+
+  const buttonSm = `ml-2 first:ml-0 rounded px-4 p-3 text-center hover:shadow-lg`;
+  const button = "bg-slate-700 hover:bg-slate-600";
+  const buttonActive = "bg-rose-500 cursor-default";
+
   return (
     <div className="block">
       <div className="flex">
         <div className="flex items-center">
           <h2 className="mr-3 font-semibold text-slate-300">Difficulty</h2>
           <div className="flex flex-nowrap">
-            <button className={buttonSm}>Easy</button>
-            <button className={buttonSm}>Medium</button>
-            <button className={buttonSm}>Hard</button>
+            {difficulties.map((difficulty) => (
+              <button
+                className={`${buttonSm} ${
+                  difficulty !== queries.difficulty ? button : buttonActive
+                }`}
+                onClick={() => {
+                  setQueries({
+                    ...queries,
+                    difficulty,
+                  });
+                }}
+                key={difficulty}
+              >
+                {difficulty}
+              </button>
+            ))}
           </div>
         </div>
         <div className="ml-12 flex items-center">
           <h2 className="mr-3 font-semibold text-slate-300">Questions</h2>
           <div className="flex flex-nowrap">
-            <button className={buttonSm}>3</button>
-            <button className={buttonSm}>4</button>
-            <button className={buttonSm}>5</button>
-            <button className={buttonSm}>6</button>
+            {limits.map((limit) => (
+              <button
+                className={`${buttonSm} ${
+                  limit !== queries.limit ? button : buttonActive
+                }`}
+                onClick={() => {
+                  setQueries({
+                    ...queries,
+                    limit,
+                  });
+                }}
+                key={limit}
+              >
+                {limit}
+              </button>
+            ))}
           </div>
         </div>
       </div>
