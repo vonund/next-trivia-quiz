@@ -26,3 +26,11 @@ You can check out the [create-t3-app GitHub repository](https://github.com/t3-os
 ## How do I deploy this?
 
 Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+
+## Todo
+
+- replace custom hook with common component level query
+- !split request string into variables
+- check how to improve separate active/default button states 
+- check how to improve button styles, use CVA maybe
+- improve design system
