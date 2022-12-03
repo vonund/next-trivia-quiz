@@ -32,15 +32,15 @@ const Home: NextPage = () => {
   useEffect(() => {
     if (!options) return;
 
-    const normalizeOptions = (data: ResponseOptions): Options => {
-      return Object.keys(data)
+    const normalizeOptions = (options: ResponseOptions): Options => {
+      return Object.keys(options)
         .sort()
-        .reduce((acc: Options, key) => {
+        .reduce((acc: Options, option) => {
           return [
             ...acc,
             {
-              title: key,
-              key: key.replace(" & ", "_and_").toLocaleLowerCase(),
+              title: option,
+              key: option.replace(" & ", "_and_").toLocaleLowerCase(),
             },
           ];
         }, []);
