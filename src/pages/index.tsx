@@ -78,10 +78,11 @@ const Home: NextPage = () => {
             {difficulties.map(({ title, key }) => (
               <button
                 className={classNames(
-                  "ml-2 rounded p-3 px-4 text-center first:ml-0 hover:shadow-lg",
+                  "ml-2 rounded p-3 px-4 text-center first:ml-0",
                   {
                     "bg-slate-700 hover:bg-slate-600": key !== difficulty,
-                    "cursor-default bg-rose-500": key === difficulty,
+                    "pointer-events-none bg-rose-500 shadow-lg shadow-pink-900/70":
+                      key === difficulty,
                   }
                 )}
                 onClick={() => {
@@ -100,10 +101,11 @@ const Home: NextPage = () => {
             {limits.map((item) => (
               <button
                 className={classNames(
-                  "ml-2 rounded p-3 px-4 text-center first:ml-0 hover:shadow-lg",
+                  "ml-2 rounded p-3 px-4 text-center first:ml-0",
                   {
                     "bg-slate-700 hover:bg-slate-600": item !== limit,
-                    "cursor-default bg-rose-500": item === limit,
+                    "pointer-events-none bg-rose-500 shadow-lg shadow-pink-900/70":
+                      item === limit,
                   }
                 )}
                 onClick={() => {
@@ -124,7 +126,15 @@ const Home: NextPage = () => {
         {categories.map(({ title, key }) => {
           return (
             <button
-              className="cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap rounded bg-slate-700 px-6 py-6 text-center font-semibold hover:bg-slate-600 hover:shadow-lg"
+              className={classNames(
+                "overflow-hidden text-ellipsis whitespace-nowrap rounded px-6 py-6 text-center font-semibold",
+                {
+                  "cursor-pointer  bg-slate-700 hover:bg-slate-600 hover:shadow-lg":
+                    key !== category,
+                  "pointer-events-none bg-rose-500 shadow-lg shadow-pink-900/70":
+                    key === category,
+                }
+              )}
               key={key}
               type="button"
               onClick={() => {
@@ -139,7 +149,14 @@ const Home: NextPage = () => {
       <div className="mt-12 text-center">
         <Link
           href={`/quiz?category=${category}&difficulty=${difficulty}&limit=${limit}`}
-          className="inline-block rounded bg-pink-600 px-14 py-4 align-top text-2xl shadow-xl hover:bg-rose-500"
+          className={classNames(
+            "inline-block rounded px-14 py-5 align-top text-2xl",
+            {
+              "bg-pink-600 shadow-xl hover:bg-rose-500": category,
+              "pointer-events-none bg-pink-600 text-pink-400 shadow-md":
+                !category,
+            }
+          )}
         >
           Start a quiz!
         </Link>
